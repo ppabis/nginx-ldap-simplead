@@ -21,3 +21,8 @@ resource "aws_directory_service_directory" "simple_ad" {
 
   tags = { Name = "simple-ad" }
 } 
+
+output "ldap_password" {
+    value = random_password.directory_password.result
+    sensitive = true
+}
