@@ -7,42 +7,16 @@ resource "aws_key_pair" "instance_key" {
   public_key = file(var.public_key_path)
 }
 
-resource "aws_security_group" "instance" {
-  name        = "instance-sg"
+module "instance_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.3.0"
+  name    = "instance-sg"
+  vpc_id  = module.vpc.vpc_attributes.id
   description = "Security group for EC2 instance"
-  vpc_id      = module.vpc.vpc_attributes.id
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.ssh_cidr]
-  }
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "instance-sg"
-  }
+  ingress_rules        = ["http-80-tcp", "https-443-tcp"]
+  ingress_cidr_blocks  = ["0.0.0.0/0"]
+  egress_rules         = ["all-all"]
 }
 
 # IAM role for EC2 instance
@@ -85,11 +59,15 @@ resource "aws_instance" "ldap_web" {
   subnet_id     = [for _, subnet in module.vpc.public_subnet_attributes_by_az : subnet.id][0]
   key_name      = aws_key_pair.instance_key.key_name
 
-  associate_public_ip_address = true
-  vpc_security_group_ids     = [aws_security_group.instance.id]
-  iam_instance_profile      = aws_iam_instance_profile.instance_profile.name
+  associate_public_ip_address   = true
+  vpc_security_group_ids        = [module.instance_sg.security_group_id]
+  iam_instance_profile          = aws_iam_instance_profile.instance_profile.name
 
   tags = { Name = "web-instance" }
+
+  lifecycle {
+    ignore_changes = [ ami ]
+  }
 }
 
 output "instance_ip" {
