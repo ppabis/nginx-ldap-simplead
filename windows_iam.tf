@@ -53,7 +53,7 @@ resource "aws_security_group" "rdp" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-} 
+}
 
 resource "tls_private_key" "windows_key" {
   algorithm = "RSA"

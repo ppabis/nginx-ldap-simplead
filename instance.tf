@@ -8,15 +8,15 @@ resource "aws_key_pair" "instance_key" {
 }
 
 module "instance_sg" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "5.3.0"
-  name    = "instance-sg"
-  vpc_id  = module.vpc.vpc_attributes.id
+  source      = "terraform-aws-modules/security-group/aws"
+  version     = "5.3.0"
+  name        = "instance-sg"
+  vpc_id      = module.vpc.vpc_attributes.id
   description = "Security group for EC2 instance"
 
-  ingress_rules        = ["http-80-tcp", "https-443-tcp"]
-  ingress_cidr_blocks  = ["0.0.0.0/0"]
-  egress_rules         = ["all-all"]
+  ingress_rules       = ["http-80-tcp", "https-443-tcp"]
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+  egress_rules        = ["all-all"]
 }
 
 # IAM role for EC2 instance
@@ -59,14 +59,14 @@ resource "aws_instance" "ldap_web" {
   subnet_id     = [for _, subnet in module.vpc.public_subnet_attributes_by_az : subnet.id][0]
   key_name      = aws_key_pair.instance_key.key_name
 
-  associate_public_ip_address   = true
-  vpc_security_group_ids        = [module.instance_sg.security_group_id]
-  iam_instance_profile          = aws_iam_instance_profile.instance_profile.name
+  associate_public_ip_address = true
+  vpc_security_group_ids      = [module.instance_sg.security_group_id]
+  iam_instance_profile        = aws_iam_instance_profile.instance_profile.name
 
   tags = { Name = "web-instance" }
 
   lifecycle {
-    ignore_changes = [ ami ]
+    ignore_changes = [ami]
   }
 
   user_data = <<-EOF
@@ -78,7 +78,7 @@ resource "aws_instance" "ldap_web" {
     -o /usr/local/bin/docker-compose
   chmod +x /usr/local/bin/docker-compose
   EOF
-  
+
 }
 
 output "instance_ip" {

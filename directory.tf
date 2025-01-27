@@ -9,10 +9,10 @@ resource "random_password" "directory_password" {
 }
 
 resource "aws_directory_service_directory" "simple_ad" {
-  name        = var.directory_name
-  password    = random_password.directory_password.result
-  size        = "Small"
-  type        = "SimpleAD"
+  name     = var.directory_name
+  password = random_password.directory_password.result
+  size     = "Small"
+  type     = "SimpleAD"
 
   vpc_settings {
     vpc_id     = module.vpc.vpc_attributes.id
@@ -20,9 +20,9 @@ resource "aws_directory_service_directory" "simple_ad" {
   }
 
   tags = { Name = "simple-ad" }
-} 
+}
 
 output "ldap_password" {
-    value = random_password.directory_password.result
-    sensitive = true
+  value     = random_password.directory_password.result
+  sensitive = true
 }
