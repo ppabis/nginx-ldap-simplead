@@ -19,3 +19,8 @@ variable "public_key_path" {
   default     = "~/.ssh/id_rsa.pub"
 }
 
+variable "domain_name" {
+  description = "Domain name (optional)"
+  type        = string
+  default     = ""
+}
