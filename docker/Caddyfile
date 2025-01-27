@@ -1,0 +1,6 @@
+meine.domane.org {
+    tls {
+        issuer acme
+    }
+    reverse_proxy nginx:80
+} 
