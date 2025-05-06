@@ -12,13 +12,9 @@ resource "aws_ssm_parameter" "ad_server_name" {
   value       = aws_directory_service_directory.simple_ad.name
 }
 
-data "aws_directory_service_directory" "simple_ad" {
-  directory_id = aws_directory_service_directory.simple_ad.id
-}
-
 resource "aws_ssm_parameter" "ad_dns_ip" {
   name        = "/nginx-ldap/ad-dns-ip"
   description = "Simple AD first DNS server IP"
   type        = "String"
-  value       = tolist(data.aws_directory_service_directory.simple_ad.dns_ip_addresses)[0]
+  value       = tolist(aws_directory_service_directory.simple_ad.dns_ip_addresses)[0]
 }
